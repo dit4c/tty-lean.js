@@ -44,7 +44,7 @@ var tty = new EventEmitter;
  */
 
 tty.socket;
-tty.windows;
+tty.window;
 tty.terms;
 tty.elements;
 
@@ -63,37 +63,24 @@ tty.open = function() {
     tty.socket = io.connect();
   }
 
-  tty.windows = [];
+  tty.window = null;
   tty.terms = {};
 
   tty.elements = {
     root: document.documentElement,
     body: document.body,
-    h1: document.getElementsByTagName('h1')[0],
-    open: document.getElementById('open'),
-    lights: document.getElementById('lights')
+    h1: document.getElementsByTagName('h1')[0]
   };
 
   root = tty.elements.root;
   body = tty.elements.body;
   h1 = tty.elements.h1;
-  open = tty.elements.open;
-  lights = tty.elements.lights;
-
-  if (open) {
-    on(open, 'click', function() {
-      new Window;
-    });
-  }
-
-  if (lights) {
-    on(lights, 'click', function() {
-      tty.toggleLights();
-    });
-  }
+  
+  tty.toggleLights();
+  new Window;
 
   tty.socket.on('connect', function() {
-    tty.reset();
+    //tty.reset();
     tty.emit('connect');
   });
 
@@ -141,24 +128,15 @@ tty.open = function() {
   // clientside, rather than poll on the
   // server, and *then* send it to the client.
   setInterval(function() {
-    var i = tty.windows.length;
-    while (i--) {
-      if (!tty.windows[i].focused) continue;
-      tty.windows[i].focused.pollProcessName();
-    }
+    tty.window.focused.pollProcessName();
   }, 2 * 1000);
 
   // Keep windows maximized.
   on(window, 'resize', function() {
-    var i = tty.windows.length
-      , win;
-
-    while (i--) {
-      win = tty.windows[i];
-      if (win.minimize) {
-        win.minimize();
-        win.maximize();
-      }
+    var win = tty.window;
+    if (win.minimize) {
+      win.minimize();
+      win.maximize();
     }
   });
 
@@ -166,21 +144,6 @@ tty.open = function() {
   tty.emit('open');
 };
 
-/**
- * Reset
- */
-
-tty.reset = function() {
-  var i = tty.windows.length;
-  while (i--) {
-    tty.windows[i].destroy();
-  }
-
-  tty.windows = [];
-  tty.terms = {};
-
-  tty.emit('reset');
-};
 
 /**
  * Lights
@@ -244,11 +207,12 @@ function Window(socket) {
   bar.appendChild(title);
   body.appendChild(el);
 
-  tty.windows.push(this);
+  tty.window = this;
 
   this.createTab();
-  this.focus();
   this.bind();
+  
+  this.maximize();
 
   this.tabs[0].once('open', function() {
     tty.emit('open window', self);
@@ -268,7 +232,7 @@ Window.prototype.bind = function() {
 
   on(button, 'click', function(ev) {
     if (ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey) {
-      self.destroy();
+      alert("ctrl-click on tabs to close");
     } else {
       self.createTab();
     }
@@ -297,85 +261,6 @@ Window.prototype.bind = function() {
 
     return cancel(ev);
   });
-};
-
-Window.prototype.focus = function() {
-  // Restack
-  var parent = this.element.parentNode;
-  if (parent) {
-    parent.removeChild(this.element);
-    parent.appendChild(this.element);
-  }
-
-  // Focus Foreground Tab
-  this.focused.focus();
-
-  tty.emit('focus window', this);
-  this.emit('focus');
-};
-
-Window.prototype.destroy = function() {
-  if (this.destroyed) return;
-  this.destroyed = true;
-
-  if (this.minimize) this.minimize();
-
-  splice(tty.windows, this);
-  if (tty.windows.length) tty.windows[0].focus();
-
-  this.element.parentNode.removeChild(this.element);
-
-  this.each(function(term) {
-    term.destroy();
-  });
-
-  tty.emit('close window', this);
-  this.emit('close');
-};
-
-Window.prototype.drag = function(ev) {
-  var self = this
-    , el = this.element;
-
-  if (this.minimize) return;
-
-  var drag = {
-    left: el.offsetLeft,
-    top: el.offsetTop,
-    pageX: ev.pageX,
-    pageY: ev.pageY
-  };
-
-  el.style.opacity = '0.60';
-  el.style.cursor = 'move';
-  root.style.cursor = 'move';
-
-  function move(ev) {
-    el.style.left =
-      (drag.left + ev.pageX - drag.pageX) + 'px';
-    el.style.top =
-      (drag.top + ev.pageY - drag.pageY) + 'px';
-  }
-
-  function up() {
-    el.style.opacity = '';
-    el.style.cursor = '';
-    root.style.cursor = '';
-
-    off(document, 'mousemove', move);
-    off(document, 'mouseup', up);
-
-    var ev = {
-      left: el.style.left.replace(/\w+/g, ''),
-      top: el.style.top.replace(/\w+/g, '')
-    };
-
-    tty.emit('drag window', self, ev);
-    self.emit('drag', ev);
-  }
-
-  on(document, 'mousemove', move);
-  on(document, 'mouseup', up);
 };
 
 Window.prototype.resizing = function(ev) {
@@ -663,8 +548,6 @@ Tab.prototype.focus = function() {
 
   this._focus();
 
-  win.focus();
-
   tty.emit('focus tab', this);
   this.emit('focus');
 };
@@ -702,11 +585,6 @@ Tab.prototype._destroy = function() {
     win.destroy();
   }
 
-  // if (!tty.windows.length) {
-  //   document.title = initialTitle;
-  //   if (h1) h1.innerHTML = initialTitle;
-  // }
-
   this.__destroy();
 };
 
@@ -721,7 +599,7 @@ Tab.prototype.destroy = function() {
 Tab.prototype.hookKeys = function() {
   var self = this;
 
-  // Alt-[jk] to quickly swap between windows.
+  // Alt-[jk] to quickly swap between tabs.
   this.on('key', function(key, ev) {
     if (Terminal.focusKeys === false) {
       return;
@@ -731,27 +609,12 @@ Tab.prototype.hookKeys = function() {
       , i;
 
     if (key === '\x1bj') {
-      offset = -1;
+      this.window.previousTab();
     } else if (key === '\x1bk') {
-      offset = +1;
+      this.window.nextTab();
     } else {
       return;
     }
-
-    i = indexOf(tty.windows, this.window) + offset;
-
-    this._ignoreNext();
-
-    if (tty.windows[i]) return tty.windows[i].highlight();
-
-    if (offset > 0) {
-      if (tty.windows[0]) return tty.windows[0].highlight();
-    } else {
-      i = tty.windows.length - 1;
-      if (tty.windows[i]) return tty.windows[i].highlight();
-    }
-
-    return this.window.highlight();
   });
 
   this.on('request paste', function(key) {
