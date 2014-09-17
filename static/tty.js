@@ -1,6 +1,7 @@
 /**
  * tty.js
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
+ * Copyright (c) 2014, The University of Melbourne (MIT License)
  */
 
 ;(function() {
