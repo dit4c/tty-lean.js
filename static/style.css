@@ -96,20 +96,6 @@ body {
   font-weight: bold;
 }
 
-.grip {
-  position: absolute;
-  bottom: -10px;
-  right: -10px;
-  width: 22px;
-  height: 22px;
-  cursor: se-resize;
-  z-index: -1;
-  background: transparent;
-}
-
-.grip:hover {
-}
-
 .terminal {
   border: #000 solid 5px;
   font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
@@ -135,41 +121,6 @@ h1 {
   padding: 10px 25px;
   color: white;
   border-top: #e15729 solid 10px;
-}
-
-#open, #lights {
-  font: 20px/1.5 sans-serif;
-  position: fixed;
-  right: 0;
-  padding: 10px;
-  height: 50px;
-  color: white;
-  cursor: pointer;
-  margin: 0;
-  background: none;
-  border: none;
-  -webkit-appearance: none;
-}
-
-#open {
-  top: 10px;
-  background: #333;
-}
-
-#lights {
-  font-size: 18px;
-  height: 46px;
-  top: 60px;
-  background: #555;
-}
-
-#open:hover, #lights:hover {
-  color: slategrey;
-  background: white;
-}
-
-#open:active, #lights:active {
-  color: orange;
 }
 
 #help {

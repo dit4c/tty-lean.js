@@ -166,16 +166,12 @@ function Window(socket) {
   EventEmitter.call(this);
 
   var el
-    , grip
     , bar
     , button
     , title;
 
   el = document.createElement('div');
   el.className = 'window';
-
-  grip = document.createElement('div');
-  grip.className = 'grip';
 
   bar = document.createElement('div');
   bar.className = 'bar';
@@ -191,7 +187,6 @@ function Window(socket) {
 
   this.socket = socket || tty.socket;
   this.element = el;
-  this.grip = grip;
   this.bar = bar;
   this.button = button;
   this.title = title;
@@ -202,7 +197,6 @@ function Window(socket) {
   this.cols = Terminal.geometry[0];
   this.rows = Terminal.geometry[1];
 
-  el.appendChild(grip);
   el.appendChild(bar);
   bar.appendChild(button);
   bar.appendChild(title);
@@ -227,7 +221,6 @@ Window.prototype.bind = function() {
   var self = this
     , el = this.element
     , bar = this.bar
-    , grip = this.grip
     , button = this.button
     , last = 0;
 
@@ -240,16 +233,8 @@ Window.prototype.bind = function() {
     return cancel(ev);
   });
 
-  on(grip, 'mousedown', function(ev) {
-    self.focus();
-    self.resizing(ev);
-    return cancel(ev);
-  });
-
   on(el, 'mousedown', function(ev) {
     if (ev.target !== el && ev.target !== bar) return;
-
-    self.focus();
 
     cancel(ev);
 
@@ -345,7 +330,6 @@ Window.prototype.maximize = function() {
     term.element.style.width = '';
     term.element.style.height = '';
     el.style.boxSizing = '';
-    self.grip.style.display = '';
     root.className = m.root;
 
     self.resize(m.cols, m.rows);
@@ -368,7 +352,6 @@ Window.prototype.maximize = function() {
   term.element.style.width = '100%';
   term.element.style.height = '100%';
   el.style.boxSizing = 'border-box';
-  this.grip.style.display = 'none';
   root.className = 'maximized';
 
   this.resize(x, y);
