@@ -1,14 +1,15 @@
 <!doctype html>
-<title>tty.js</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="user.css">
-
-<h1>tty.js</h1>
-
-<div id="help">
-  <p>Double-click titlebar to maximize.</p>
-  <p>Click the tilde to open a new tab.</p>
-</div>
+<html>
+<head>
+  <title>tty.js</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="user.css">
+</head>
+<body>
+<!--
+Double-click titlebar to maximize.
+Click the tilde to open a new tab.
+-->
 
 <script src="socket.io/socket.io.js"></script>
 <script src="term.js"></script>
@@ -30,3 +31,5 @@ WebFontConfig = {
   var s = document.getElementsByTagName('script')[0];
   s.parentNode.insertBefore(wf, s);
 })(); </script>
+</body>
+</html>

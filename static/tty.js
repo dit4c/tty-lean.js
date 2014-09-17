@@ -77,7 +77,6 @@ tty.open = function() {
   body = tty.elements.body;
   h1 = tty.elements.h1;
   
-  tty.toggleLights();
   new Window;
 
   tty.socket.on('connect', function() {
@@ -135,10 +134,7 @@ tty.open = function() {
   // Keep windows maximized.
   on(window, 'resize', function() {
     var win = tty.window;
-    if (win.minimize) {
-      win.minimize();
-      win.maximize();
-    }
+    win.maximize();
   });
 
   tty.emit('load');
@@ -168,7 +164,8 @@ function Window(socket) {
   var el
     , bar
     , button
-    , title;
+    , title
+    , empty;
 
   el = document.createElement('div');
   el.className = 'window';
@@ -184,6 +181,10 @@ function Window(socket) {
   title = document.createElement('div');
   title.className = 'title';
   title.innerHTML = '';
+  
+  empty = document.createElement('div');
+  empty.className = 'empty';
+  empty.innerHTML = '<h1>No terminals</h1>';
 
   this.socket = socket || tty.socket;
   this.element = el;
@@ -198,6 +199,7 @@ function Window(socket) {
   this.rows = Terminal.geometry[1];
 
   el.appendChild(bar);
+  el.appendChild(empty);
   bar.appendChild(button);
   bar.appendChild(title);
   body.appendChild(el);
@@ -233,84 +235,15 @@ Window.prototype.bind = function() {
     return cancel(ev);
   });
 
-  on(el, 'mousedown', function(ev) {
-    if (ev.target !== el && ev.target !== bar) return;
-
-    cancel(ev);
-
-    if (new Date - last < 600) {
-      return self.maximize();
-    }
-    last = new Date;
-
-    self.drag(ev);
-
-    return cancel(ev);
-  });
-};
-
-Window.prototype.resizing = function(ev) {
-  var self = this
-    , el = this.element
-    , term = this.focused;
-
-  if (this.minimize) delete this.minimize;
-
-  var resize = {
-    w: el.clientWidth,
-    h: el.clientHeight
-  };
-
-  el.style.overflow = 'hidden';
-  el.style.opacity = '0.70';
-  el.style.cursor = 'se-resize';
-  root.style.cursor = 'se-resize';
-  term.element.style.height = '100%';
-
-  function move(ev) {
-    var x, y;
-    y = el.offsetHeight - term.element.clientHeight;
-    x = ev.pageX - el.offsetLeft;
-    y = (ev.pageY - el.offsetTop) - y;
-    el.style.width = x + 'px';
-    el.style.height = y + 'px';
-  }
-
-  function up() {
-    var x, y;
-
-    x = el.clientWidth / resize.w;
-    y = el.clientHeight / resize.h;
-    x = (x * term.cols) | 0;
-    y = (y * term.rows) | 0;
-
-    self.resize(x, y);
-
-    el.style.width = '';
-    el.style.height = '';
-
-    el.style.overflow = '';
-    el.style.opacity = '';
-    el.style.cursor = '';
-    root.style.cursor = '';
-    term.element.style.height = '';
-
-    off(document, 'mousemove', move);
-    off(document, 'mouseup', up);
-  }
-
-  on(document, 'mousemove', move);
-  on(document, 'mouseup', up);
 };
 
 Window.prototype.maximize = function() {
-  if (this.minimize) return this.minimize();
 
   var self = this
     , el = this.element
     , term = this.focused
-    , x
-    , y;
+    , characterDimensions
+    , padding;
 
   var m = {
     cols: term.cols,
@@ -319,42 +252,42 @@ Window.prototype.maximize = function() {
     top: el.offsetTop,
     root: root.className
   };
-
-  this.minimize = function() {
-    delete this.minimize;
-
-    el.style.left = m.left + 'px';
-    el.style.top = m.top + 'px';
-    el.style.width = '';
-    el.style.height = '';
-    term.element.style.width = '';
-    term.element.style.height = '';
-    el.style.boxSizing = '';
-    root.className = m.root;
-
-    self.resize(m.cols, m.rows);
-
-    tty.emit('minimize window', self);
-    self.emit('minimize');
-  };
-
+    
   window.scrollTo(0, 0);
-
-  x = root.clientWidth / term.element.offsetWidth;
-  y = root.clientHeight / term.element.offsetHeight;
-  x = (x * term.cols) | 0;
-  y = (y * term.rows) | 0;
-
-  el.style.left = '0px';
-  el.style.top = '0px';
-  el.style.width = '100%';
-  el.style.height = '100%';
-  term.element.style.width = '100%';
-  term.element.style.height = '100%';
-  el.style.boxSizing = 'border-box';
-  root.className = 'maximized';
-
-  this.resize(x, y);
+    
+  function borderWidth(side) {
+    return Number.parseInt(
+      window.getComputedStyle(term.element, null)
+        .getPropertyValue('border-'+side+'-width'));
+  }
+  
+  padding = {
+    x: borderWidth('left') + borderWidth('right'),
+    y: borderWidth('top') + borderWidth('bottom')
+  };
+  
+  characterDimensions = (function () {
+    var testEl = document.createElement('span');
+    testEl.className = 'terminal';
+    testEl.innerHTML = 'X';
+    el.appendChild(testEl);
+    var x = testEl.offsetWidth - padding.x,
+        y = testEl.offsetHeight - padding.y;
+    el.removeChild(testEl);
+    return { width: x, height: y };
+  }());
+  
+  function cols() {
+    var width = el.offsetWidth - padding.x;
+    return Math.floor(width / characterDimensions.width);
+  }
+  
+  function rows() {
+    var height = el.offsetHeight - self.bar.offsetHeight - padding.y;
+    return Math.floor(height / characterDimensions.height);
+  }
+  
+  this.resize(cols(), rows());
 
   tty.emit('maximize window', this);
   this.emit('maximize');
@@ -563,10 +496,6 @@ Tab.prototype._destroy = function() {
 
   if (win.focused === this) {
     win.previousTab();
-  }
-
-  if (!win.tabs.length) {
-    win.destroy();
   }
 
   this.__destroy();
