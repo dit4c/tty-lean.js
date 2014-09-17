@@ -1,6 +1,7 @@
 /**
  * style.css (https://github.com/chjj/tty.js)
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
+ * Copyright (c) 2014, The University of Melbourne (MIT License)
  */
 
 html, body {
@@ -16,13 +17,6 @@ div {
   padding: 0;
   margin: 0;
 }
-
-/* Only allow plaintext?
-[contenteditable=""],
-[contenteditable="true"] {
-  -webkit-user-modify: read-write-plaintext-only !important;
-}
-*/
 
 /**
  * Terminal
