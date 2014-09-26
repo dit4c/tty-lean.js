@@ -169,6 +169,7 @@ function Window(socket) {
 
   el = document.createElement('div');
   el.className = 'window';
+  el.style.fontSize = "12px";
 
   bar = document.createElement('div');
   bar.className = 'bar';
@@ -351,6 +352,21 @@ Window.prototype.previousTab = function() {
   return this.focusTab(false);
 };
 
+Window.prototype.changeFontSize = function(delta) {
+  var changed = Number.parseInt(this.element.style.fontSize) + delta;
+  console.log(this.element.fontSize, changed);
+  this.element.style.fontSize = changed + "px";
+  this.maximize();
+};
+
+Window.prototype.increaseFontSize = function() {
+  return this.changeFontSize(1);
+};
+
+Window.prototype.decreaseFontSize = function() {
+  return this.changeFontSize(-1);
+};
+
 /**
  * Tab
  */
@@ -514,6 +530,7 @@ Tab.prototype.hookKeys = function() {
 
   // Alt-[jk] to quickly swap between tabs.
   this.on('key', function(key, ev) {
+    console.log(key.split(''), ev);
     if (Terminal.focusKeys === false) {
       return;
     }
@@ -525,6 +542,12 @@ Tab.prototype.hookKeys = function() {
       this.window.previousTab();
     } else if (key === '\x1bk') {
       this.window.nextTab();
+    } else if (key === '\x1bi') {
+      this.window.increaseFontSize();
+      console.log("font size +");
+    } else if (key === '\x1bo') {
+      this.window.decreaseFontSize();
+      console.log("font size -");
     } else {
       return;
     }
