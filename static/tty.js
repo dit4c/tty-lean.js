@@ -59,9 +59,9 @@ tty.open = function() {
       , base = parts.slice(0, parts.length - 1).join('/') + '/'
       , resource = base.substring(1) + 'socket.io';
 
-    tty.socket = io.connect(null, { resource: resource });
+    tty.socket = io(null, { path: resource });
   } else {
-    tty.socket = io.connect();
+    tty.socket = io();
   }
 
   tty.window = null;
