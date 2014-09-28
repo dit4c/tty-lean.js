@@ -169,7 +169,13 @@ function Window(socket) {
 
   el = document.createElement('div');
   el.className = 'window';
-  el.style.fontSize = "12px";
+  el.style.fontSize = (function() {
+    var size = 16;
+    if (localStorage && localStorage.getItem('font-size')) {
+      size = Math.max(Number.parseInt(localStorage.getItem('font-size')), 4);
+    }
+    return size+"px";
+  }())
 
   bar = document.createElement('div');
   bar.className = 'bar';
@@ -354,8 +360,10 @@ Window.prototype.previousTab = function() {
 
 Window.prototype.changeFontSize = function(delta) {
   var changed = Number.parseInt(this.element.style.fontSize) + delta;
-  console.log(this.element.fontSize, changed);
   this.element.style.fontSize = changed + "px";
+  if (window.localStorage) {
+    localStorage.setItem('font-size', changed);
+  }
   this.maximize();
 };
 
@@ -530,7 +538,6 @@ Tab.prototype.hookKeys = function() {
 
   // Alt-[jk] to quickly swap between tabs.
   this.on('key', function(key, ev) {
-    console.log(key.split(''), ev);
     if (Terminal.focusKeys === false) {
       return;
     }
@@ -544,13 +551,15 @@ Tab.prototype.hookKeys = function() {
       this.window.nextTab();
     } else if (key === '\x1bi') {
       this.window.increaseFontSize();
-      console.log("font size +");
     } else if (key === '\x1bo') {
       this.window.decreaseFontSize();
-      console.log("font size -");
     } else {
       return;
     }
+  });
+  
+  this.window.on("wheel", function() {
+    console.log(arguments);
   });
 
   this.on('request paste', function(key) {
