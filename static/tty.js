@@ -53,7 +53,7 @@ tty.elements;
  * Open
  */
 
-tty.open = function() {
+tty.open = function(startId) {
   if (document.location.pathname) {
     var parts = document.location.pathname.split('/')
       , base = parts.slice(0, parts.length - 1).join('/') + '/'
@@ -80,8 +80,7 @@ tty.open = function() {
   tty.window = new Window;
 
   tty.socket.on('connect', function() {
-    //tty.reset();
-    tty.emit('connect');
+    tty.socket.emit('start', startId);
   });
 
   tty.socket.on('data', function(id, data) {
@@ -716,12 +715,13 @@ function sanitize(text) {
  */
 
 function load() {
+  var startId = Math.random().toString(36).slice(2);
   if (load.done) return;
   load.done = true;
 
   off(document, 'load', load);
   off(document, 'DOMContentLoaded', load);
-  tty.open();
+  tty.open(startId);
 }
 
 on(document, 'load', load);
