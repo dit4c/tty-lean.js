@@ -137,17 +137,6 @@ tty.open = function() {
   tty.emit('open');
 };
 
-
-/**
- * Lights
- */
-
-tty.toggleLights = function() {
-  root.className = !root.className
-    ? 'dark'
-    : '';
-};
-
 /**
  * Window
  */
