@@ -41,10 +41,38 @@ div {
 
 .title {
   position: absolute;
-  right: 5px;
+  right: 30px;
   top: 2px;
   font-size: 16px;
   cursor: default;
+}
+
+.help {
+  position: absolute;
+  right: 5px;
+  top: 2px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.help:hover {
+  font-weight: bold;
+}
+
+#help-text {
+  display: none;
+  padding: 20px;
+  white-space: pre;
+  font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
+  background: #333;
+  color: white;
+}
+
+#help-text.show {
+  display: block;
+  position: absolute;
+  top: 20px;
+  right: 0px;
 }
 
 .tab {

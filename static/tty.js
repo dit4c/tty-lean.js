@@ -165,15 +165,15 @@ function Window(socket) {
     , bar
     , button
     , title
+    , help
     , empty;
 
   el = document.createElement('div');
   el.className = 'window';
-  el.style.fontSize = (function() {
+  el.style.fontSize = '16px';
+  (function() {
     var size = 16;
-    if (localStorage && localStorage.getItem('font-size')) {
-      size = Math.max(Number.parseInt(localStorage.getItem('font-size')), 4);
-    }
+    
     return size+"px";
   }())
 
@@ -188,6 +188,16 @@ function Window(socket) {
   title = document.createElement('div');
   title.className = 'title';
   title.innerHTML = '';
+  
+  help = document.createElement('div');
+  help.className = 'help';
+  help.innerHTML = '?';
+  help.onmouseover = function() {
+    document.getElementById('help-text').className = "show";
+  };
+  help.onmouseout = function() {
+    document.getElementById('help-text').className = "";
+  };
   
   empty = document.createElement('div');
   empty.className = 'empty';
@@ -209,6 +219,7 @@ function Window(socket) {
   el.appendChild(empty);
   bar.appendChild(button);
   bar.appendChild(title);
+  bar.appendChild(help);
   body.appendChild(el);
 
   tty.window = this;
@@ -216,6 +227,9 @@ function Window(socket) {
   this.createTab();
   this.bind();
   
+  if (localStorage && localStorage.getItem('font-size')) {
+    this.setFontSize(localStorage.getItem('font-size'));
+  }
   this.maximize();
 
   this.tabs[0].once('open', function() {
@@ -358,12 +372,18 @@ Window.prototype.previousTab = function() {
   return this.focusTab(false);
 };
 
+Window.prototype.setFontSize = function(size) {
+  size = Math.max(Number.parseInt(size), 4); // Use a lower bound for the size
+  if (isNaN(size)) return;
+  this.element.style.fontSize = size + "px";
+  if (window.localStorage) {
+    window.localStorage.setItem('font-size', size);
+  }
+}
+
 Window.prototype.changeFontSize = function(delta) {
   var changed = Number.parseInt(this.element.style.fontSize) + delta;
-  this.element.style.fontSize = changed + "px";
-  if (window.localStorage) {
-    localStorage.setItem('font-size', changed);
-  }
+  this.setFontSize(changed);
   this.maximize();
 };
 
@@ -549,6 +569,9 @@ Tab.prototype.hookKeys = function() {
       this.window.previousTab();
     } else if (key === '\x1bk') {
       this.window.nextTab();
+    } else if (key === '\x1bf') {
+      this.window.setFontSize(window.prompt("Terminal font size?"));
+      this.window.maximize();
     } else if (key === '\x1bi') {
       this.window.increaseFontSize();
     } else if (key === '\x1bo') {
