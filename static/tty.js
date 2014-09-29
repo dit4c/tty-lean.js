@@ -103,17 +103,11 @@ tty.open = function() {
   }
   
   function newSocket() {
-    console.log(document.location.pathname);
-    if (document.location.pathname) {
-      var parts = document.location.pathname.split('/')
-        , base = parts.slice(0, parts.length - 1).join('/') + '/'
-        , resource = base + 'socket.io';
-      
-      console.log(resource);
+    var parts = document.location.pathname.split('/')
+      , base = parts.slice(0, parts.length - 1).join('/') + '/'
+      , resource = base + 'socket.io';
     
-      return io(resource, { multiplex: false });
-    }
-    return io({ multiplex: false });
+    return io({ multiplex: false, path: resource });
   }
   
   tty.socket = setupHooks(newSocket());
