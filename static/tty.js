@@ -103,8 +103,8 @@ tty.open = function(startId) {
 
     Object.keys(terms).forEach(function(key) {
       var data = terms[key],
-          tab = new Tab(tty.window, tty.socket, true);
-
+          tab = tty.terms[data.id] || new Tab(tty.window, tty.socket, true);
+      
       tab.pty = data.pty;
       tab.id = data.id;
       tty.terms[data.id] = tab;
