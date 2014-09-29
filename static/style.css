@@ -111,6 +111,10 @@ div {
   width: 100%;
   font-family: sans-serif;
 }
+.empty h1 small {
+  display: block;
+  font-size: 62.5%;
+}
 
 .empty:last-child {
   display: inherit;

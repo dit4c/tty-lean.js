@@ -77,7 +77,7 @@ tty.open = function() {
   body = tty.elements.body;
   h1 = tty.elements.h1;
   
-  new Window;
+  tty.window = new Window;
 
   tty.socket.on('connect', function() {
     //tty.reset();
@@ -99,24 +99,20 @@ tty.open = function() {
     console.log('Attempting to sync...');
     console.log(terms);
 
-    tty.reset();
-
     var emit = tty.socket.emit;
     tty.socket.emit = function() {};
 
     Object.keys(terms).forEach(function(key) {
-      var data = terms[key]
-        , win = new Window
-        , tab = win.tabs[0];
+      var data = terms[key],
+          tab = new Tab(tty.window, tty.socket, true);
 
-      delete tty.terms[tab.id];
       tab.pty = data.pty;
       tab.id = data.id;
       tty.terms[data.id] = tab;
-      win.resize(data.cols, data.rows);
       tab.setProcessName(data.process);
       tty.emit('open tab', tab);
       tab.emit('open');
+      tty.window.maximize();
     });
 
     tty.socket.emit = emit;
@@ -201,7 +197,7 @@ function Window(socket) {
   
   empty = document.createElement('div');
   empty.className = 'empty';
-  empty.innerHTML = '<h1>No terminals</h1>';
+  empty.innerHTML = '<h1>No terminals<br/><small>click ~ to create</small></h1>';
 
   this.socket = socket || tty.socket;
   this.element = el;
@@ -224,18 +220,25 @@ function Window(socket) {
 
   tty.window = this;
 
-  this.createTab();
+  // Wait a second, and if no tabs exist (ie. from sync), create one
+  setTimeout(function() {
+    var tab;
+    if (tty.window.tabs.length == 0) {
+      tab = self.createTab();
+      tab.once('open', function() {
+        self.maximize();
+      });
+    }
+  }, 1000)
+  
   this.bind();
   
   if (localStorage && localStorage.getItem('font-size')) {
     this.setFontSize(localStorage.getItem('font-size'));
   }
-  this.maximize();
 
-  this.tabs[0].once('open', function() {
-    tty.emit('open window', self);
-    self.emit('open');
-  });
+  tty.emit('open window', self);
+  self.emit('open');
 }
 
 inherits(Window, EventEmitter);
@@ -399,7 +402,7 @@ Window.prototype.decreaseFontSize = function() {
  * Tab
  */
 
-function Tab(win, socket) {
+function Tab(win, socket, skipCreate) {
   var self = this;
 
   var cols = win.cols
@@ -435,15 +438,17 @@ function Tab(win, socket) {
 
   win.tabs.push(this);
 
-  this.socket.emit('create', cols, rows, function(err, data) {
-    if (err) return self._destroy();
-    self.pty = data.pty;
-    self.id = data.id;
-    tty.terms[self.id] = self;
-    self.setProcessName(data.process);
-    tty.emit('open tab', self);
-    self.emit('open');
-  });
+  if (!skipCreate) {
+    this.socket.emit('create', cols, rows, function(err, data) {
+      if (err) return self._destroy();
+      self.pty = data.pty;
+      self.id = data.id;
+      tty.terms[self.id] = self;
+      self.setProcessName(data.process);
+      tty.emit('open tab', self);
+      self.emit('open');
+    });
+  }
 };
 
 inherits(Tab, Terminal);
