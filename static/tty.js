@@ -53,16 +53,70 @@ tty.elements;
  * Open
  */
 
-tty.open = function(startId) {
-  if (document.location.pathname) {
-    var parts = document.location.pathname.split('/')
-      , base = parts.slice(0, parts.length - 1).join('/') + '/'
-      , resource = base.substring(1) + 'socket.io';
-
-    tty.socket = io(null, { path: resource });
-  } else {
-    tty.socket = io();
+tty.open = function() {
+  function startId(reuse) {
+    var id;
+    if (reuse && window.location.hash && window.location.hash.length > 2) {
+      id = window.location.hash.slice(1);
+    } else {
+      id = Math.random().toString(36).slice(2);
+    }
+    window.location.hash = id;
+    return id;
   }
+ 
+  function setupHooks(socket) {
+    socket.on('data', function(id, data) {
+      if (!tty.terms[id]) return;
+      tty.terms[id].write(data);
+    });
+  
+    socket.on('kill', function(id) {
+      if (!tty.terms[id]) return;
+      tty.terms[id]._destroy();
+    });
+  
+    // XXX Clean this up.
+    socket.on('sync', function(terms) {
+      console.log('Attempting to sync...');
+      console.log(terms);
+  
+      var emit = socket.emit;
+      socket.emit = function() {};
+  
+      Object.keys(terms).forEach(function(key) {
+        var data = terms[key],
+            tab = tty.terms[data.id] || new Tab(tty.window, socket, true);
+        
+        tab.pty = data.pty;
+        tab.id = data.id;
+        tty.terms[data.id] = tab;
+        tab.setProcessName(data.process);
+        tty.emit('open tab', tab);
+        tab.emit('open');
+        tty.window.maximize();
+      });
+  
+      socket.emit = emit;
+    });
+    return socket;
+  }
+  
+  function newSocket() {
+    console.log(document.location.pathname);
+    if (document.location.pathname) {
+      var parts = document.location.pathname.split('/')
+        , base = parts.slice(0, parts.length - 1).join('/') + '/'
+        , resource = base + 'socket.io';
+      
+      console.log(resource);
+    
+      return io(resource, { multiplex: false });
+    }
+    return io({ multiplex: false });
+  }
+  
+  tty.socket = setupHooks(newSocket());
 
   tty.window = null;
   tty.terms = {};
@@ -80,41 +134,17 @@ tty.open = function(startId) {
   tty.window = new Window;
 
   tty.socket.on('connect', function() {
-    tty.socket.emit('start', startId);
+    tty.socket.emit('start', startId(true));
   });
-
-  tty.socket.on('data', function(id, data) {
-    if (!tty.terms[id]) return;
-    tty.terms[id].write(data);
-  });
-
-  tty.socket.on('kill', function(id) {
-    if (!tty.terms[id]) return;
-    tty.terms[id]._destroy();
-  });
-
-  // XXX Clean this up.
-  tty.socket.on('sync', function(terms) {
-    console.log('Attempting to sync...');
-    console.log(terms);
-
-    var emit = tty.socket.emit;
-    tty.socket.emit = function() {};
-
-    Object.keys(terms).forEach(function(key) {
-      var data = terms[key],
-          tab = tty.terms[data.id] || new Tab(tty.window, tty.socket, true);
-      
-      tab.pty = data.pty;
-      tab.id = data.id;
-      tty.terms[data.id] = tab;
-      tab.setProcessName(data.process);
-      tty.emit('open tab', tab);
-      tab.emit('open');
-      tty.window.maximize();
+  
+  tty.socket.on('conflict', function() {
+    tty.socket.disconnect();
+    console.log("conflict detected, regenerating ID");
+    tty.socket = setupHooks(newSocket());
+    tty.window.socket = tty.socket;
+    tty.socket.on('connect', function() {
+      tty.socket.emit('start', startId(false));
     });
-
-    tty.socket.emit = emit;
   });
 
   // We would need to poll the os on the serverside
@@ -135,6 +165,7 @@ tty.open = function(startId) {
   tty.emit('load');
   tty.emit('open');
 };
+
 
 /**
  * Window
@@ -715,20 +746,13 @@ function sanitize(text) {
  */
 
 function load() {
-  var startId = (function() {
-    if (window.location.hash && window.location.hash.length > 2) {
-      return window.location.hash.slice(1);
-    }
-    return Math.random().toString(36).slice(2);
-  }());
-  window.location.hash = startId;
   
   if (load.done) return;
   load.done = true;
 
   off(document, 'load', load);
   off(document, 'DOMContentLoaded', load);
-  tty.open(startId);
+  tty.open();
 }
 
 on(document, 'load', load);
