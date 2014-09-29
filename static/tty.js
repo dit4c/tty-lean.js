@@ -715,7 +715,14 @@ function sanitize(text) {
  */
 
 function load() {
-  var startId = Math.random().toString(36).slice(2);
+  var startId = (function() {
+    if (window.location.hash && window.location.hash.length > 2) {
+      return window.location.hash.slice(1);
+    }
+    return Math.random().toString(36).slice(2);
+  }());
+  window.location.hash = startId;
+  
   if (load.done) return;
   load.done = true;
 
