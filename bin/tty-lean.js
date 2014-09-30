@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * tty.js
+ * tty-lean.js
  * Copyright (c) 2012-2014, Christopher Jeffrey (MIT License)
+ * Copyright (c) 2014, The University of Melbourne
  */
 
-process.title = 'tty.js';
+process.title = 'tty-lean.js';
 
 var tty = require('../');
 

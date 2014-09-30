@@ -1,31 +1,14 @@
-# tty.js
+# tty-lean.js
 
-A terminal in your browser using node.js and socket.io. Based on Fabrice
-Bellard's vt100 for [jslinux](http://bellard.org/jslinux/).
+_tty-lean.js_ is a fork of Christopher Jeffrey's [tty.js][tty.js], aimed at
+reducing the feature set to produce a more robust terminal.
 
-For the standalone web terminal, see
-[**term.js**](https://github.com/chjj/term.js).
-
-For the lowlevel terminal spawner, see
-[**pty.js**](https://github.com/chjj/pty.js).
-
-## Screenshots
-
-### irssi
-
-![](http://i.imgur.com/wqare.png)
-
-### vim & alsamixer
-
-![](http://i.imgur.com/Zg1Jq.png)
-
-### bash
-
-![](http://i.imgur.com/HimZb.png)
+[tty.js][tty.js] is great, but sometimes you just need a terminal that works
+behind a reverse-proxy over dodgy wifi.
 
 ## Features
 
-- Tabs, Stacking Windows, Maximizable Terminals
+- Tabs for your maximized Terminal window
 - Screen/Tmux-like keys (optional)
 - Ability to efficiently render programs: vim, mc, irssi, vifm, etc.
 - Support for xterm mouse events
@@ -35,35 +18,12 @@ For the lowlevel terminal spawner, see
 ## Install
 
 ``` bash
-$ npm install tty.js
-```
-
-## Usage
-
-tty.js is an app, but it's also possible to hook into it programatically.
-
-``` js
-var tty = require('tty.js');
-
-var app = tty.createServer({
-  shell: 'bash',
-  users: {
-    foo: 'bar'
-  },
-  port: 8000
-});
-
-app.get('/foo', function(req, res, next) {
-  res.send('bar');
-});
-
-app.listen();
+$ npm install tty-lean.js
 ```
 
 ## Configuration
 
-Configuration is stored in `~/.tty.js/config.json` or `~/.tty.js` as a single
-JSON file. An example configuration file looks like:
+Configuration is stored in `~/.tty-lean.js/config.json` or `~/.tty-lean.js` as a single JSON file. An example configuration file looks like:
 
 ``` json
 {
@@ -122,46 +82,18 @@ Usernames and passwords can be plaintext or sha1 hashes.
 
 ### 256 colors
 
-If tty.js fails to check your terminfo properly, you can force your `TERM`
+If tty-lean.js fails to check your terminfo properly, you can force your `TERM`
 to `xterm-256color` by setting `"termName": "xterm-256color"` in your config.
 
 ## Security
 
-tty.js currently has https as an option. It also has express' default basic
-auth middleware as an option, until it possibly gets something more robust.
-It's ultimately up to you to make sure no one has access to your terminals
-but you.
+tty-lean.js currently has https as an option as heritage from tty.js. That's likely to change. Reverse proxies work with websockets these days, so there's no real need.
 
 ## CLI
 
-- `tty.js --port 3000` - start and bind to port 3000.
-- `tty.js --daemonize` - daemonize process.
-- `tty.js --config ~/my-config.json` - specify config file.
-
-## TERM
-
-The main goal of tty.js is to eventually write a full xterm emulator.
-This goal has almost been reached, but there are a few control sequences
-not implemented fully. `TERM` should render everything fine when set to
-`xterm`.
-
-## Portability
-
-tty.js should ultimately be able to work on any unix that implements unix98
-tty's and `forkpty(3)`. tty.js builds on linux and osx, and it *should* build
-on NetBSD, FreeBSD, and OpenBSD as well. If you have trouble building, please
-post an issue.
-
-## Todo
-
-The distance to go before full xterm compatibility.
-
-- VT52 codes for compatibility
-- All vt400 rectangle sequences
-- Remaining DEC private modes
-- Miscellaneous sequences: cursor shape, window title
-- Origin Mode, Insert Mode
-- Proper Tab Setting
+- `tty-lean.js --port 3000` - start and bind to port 3000.
+- `tty-lean.js --daemonize` - daemonize process.
+- `tty-lean.js --config ~/my-config.json` - specify config file.
 
 ## Contribution and License Agreement
 
@@ -171,6 +103,7 @@ all code is your original work. `</legalese>`
 
 ## License
 
-Copyright (c) 2012-2014, Christopher Jeffrey (MIT License)
+MIT. See COPYING for details.
 
+[tty.js]: https://github.com/chjj/tty.js/
 [1]: http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#Mouse%20Tracking
