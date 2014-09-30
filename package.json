@@ -1,7 +1,9 @@
 {
   "name": "tty-lean.js",
   "description": "A leaner terminal for your browser",
-  "author": "Tim Dettrick",
+  "contributors": [
+    "Tim Dettrick"
+  ],
   "version": "0.1.0",
   "main": "./index.js",
   "bin": "./bin/tty-lean.js",
