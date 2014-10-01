@@ -3,3 +3,5 @@ node_js:
   - "0.10"
 before_install:
   - "npm install --global grunt-cli"
+after_success:
+  - "grunt coveralls"

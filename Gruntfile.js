@@ -1,20 +1,27 @@
 module.exports = function(grunt) {
 
-  grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-mocha-cov');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    mochaTest: {
+    mochacov: {
+      coveralls: {
+        options: {
+          coveralls: true
+        }
+      },
       test: {
         options: {
-          reporter: 'spec',
-          timeout: 10000
-        },
-        src: ['test/**/*.js']
+          reporter: 'spec'
+        }
+      },
+      options: {
+        files: 'test/*.js'
       }
     }
   });
 
-  grunt.registerTask('test', ['mochaTest']);
+  grunt.registerTask('coveralls', ['mochacov:coveralls']);
+  grunt.registerTask('test', ['mochacov:test']);
 
 };
