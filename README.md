@@ -95,7 +95,6 @@ tty-lean.js currently has https as an option as heritage from tty.js. That's lik
 ## CLI
 
 - `tty-lean.js --port 3000` - start and bind to port 3000.
-- `tty-lean.js --daemonize` - daemonize process.
 - `tty-lean.js --config ~/my-config.json` - specify config file.
 
 ## Contribution and License Agreement
