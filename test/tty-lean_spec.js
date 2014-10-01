@@ -4,7 +4,12 @@ var expect = require('chai').expect,
     request = require('supertest');
 
 describe("tty-lean", function() {
-  var app = server({ log: false, shell: "sh" }).server;
+  var config = {
+        localOnly: true,
+        log: false,
+        shell: "sh"
+      },
+      app = server(config).server;
   
   describe('/', function() {
     it('serves the HTML UI', function(done) {
