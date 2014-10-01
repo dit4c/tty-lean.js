@@ -19,9 +19,13 @@ module.exports = function(grunt) {
       }
     },
     blanket: {
-      coverage: {
+      server: {
         src: ['lib/'],
         dest: 'coverage/lib/'
+      },
+      client: {
+        src: ['static/'],
+        dest: 'coverage/static/'
       }
     },
     mochaTest: {
@@ -43,6 +47,6 @@ module.exports = function(grunt) {
   });
   
   
-  grunt.registerTask('test', ['clean', 'blanket', 'copy', 'mochaTest']);
+  grunt.registerTask('test', ['clean', 'copy', 'blanket', 'mochaTest']);
 
 };
