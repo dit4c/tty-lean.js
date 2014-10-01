@@ -1,7 +1,7 @@
 # tty-lean.js
 
-[![Build Status](https://travis-ci.org/dit4c/tty-lean.js.svg?branch=master)](https://travis-ci.org/dit4c/tty-lean.js)
-[![Coverage Status](https://coveralls.io/repos/dit4c/tty-lean.js/badge.png)](https://coveralls.io/r/dit4c/tty-lean.js)
+[![Build Status](https://img.shields.io/travis/dit4c/tty-lean.js.svg)](https://travis-ci.org/dit4c/tty-lean.js)
+[![Coverage Status](https://img.shields.io/coveralls/dit4c/tty-lean.js.svg)](https://coveralls.io/r/dit4c/tty-lean.js)
 
 _tty-lean.js_ is a fork of Christopher Jeffrey's [tty.js][tty.js], aimed at
 reducing the feature set to produce a more robust terminal.
