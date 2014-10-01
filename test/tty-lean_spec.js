@@ -39,7 +39,7 @@ describe("tty-lean", function() {
         socket.once('data', function(id, data) {
           expect(ttyId).to.equal(id);
           // Check we get a shell
-          expect(data).to.match(/sh.*\$ $/m);
+          expect(data).to.match(/\$ $/m);
           // When this shell closes, disconnect
           socket.on('kill', function() {
             socket.close();
