@@ -33,7 +33,8 @@ describe("tty-lean", function() {
     it('serves Socket.IO websocket endpoint', function(done) {
       app.listen(0, function() {
         var port = app.address().port,
-            socket = require('socket.io-client')('ws://localhost:'+port);
+            socket = require('socket.io-client')('ws://localhost:'+port),
+            ttyText = '';
         var ttyId;
         socket.on('connect', function() {
           socket.emit('start', 'd34db33f');
@@ -41,16 +42,19 @@ describe("tty-lean", function() {
             ttyId = data.id;
           });
         });
-        socket.once('data', function(id, data) {
+        socket.on('data', function(id, data) {
+          // Check TTY is the one expected
           expect(ttyId).to.equal(id);
-          // Check we get a shell
-          expect(data).to.match(/\$ $/m);
-          // When this shell closes, disconnect
-          socket.on('kill', function() {
-            socket.close();
-          });
-          // Close the shell by entering "exit"
-          socket.emit('data', id, 'exit\r');
+          ttyText += data;
+          // Check we got a shell
+          if (/\$ $/m.test(ttyText)) {
+            // When this shell closes, disconnect
+            socket.on('kill', function() {
+              socket.close();
+            });
+            // Close the shell by entering "exit"
+            socket.emit('data', ttyId, 'exit\r');
+          }
         });
         socket.on('disconnect', function() {
           app.on('close', done);
