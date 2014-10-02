@@ -1,6 +1,8 @@
 /* global describe: false, it: false */
 var expect = require('chai').expect,
-    config = require('../lib/config');
+    config = require('../lib/config'),
+    path = require('path'),
+    fs = require('fs');
 
 describe("config", function() {
 
@@ -12,6 +14,33 @@ describe("config", function() {
         var contents = config.tryRead(__dirname, thisFile);
         expect(contents).to.match(/\"\d{3} FOOBAR \d{3}\"/);
         done();
+      });
+    });
+    
+    describe('.parseResources', function() {
+      it('can parse an Xresources file', function(done) {
+        var fixtureFile = path.resolve(__dirname, 'fixtures/Xresources');
+        fs.readFile(fixtureFile, 'utf8', function(err, text) {
+          expect(config.helpers.parseResources(text)).to.deep.equal([ 
+            '#000000',
+            '#ff6565',
+            '#93d44f',
+            '#eab93d',
+            '#204a87',
+            '#ce5c00',
+            '#89b6e2',
+            '#cccccc',
+            '#555753',
+            '#ff8d8d',
+            '#c8e7a8',
+            '#ffc123',
+            '#3465a4',
+            '#f57900',
+            '#46a4ff',
+            '#ffffff'
+          ]);
+          done();
+        });
       });
     });
   });
@@ -39,7 +68,7 @@ describe("config", function() {
   });
 
   describe('.xresources', function() {
-    it.skip('can parse an Xresources file', function(done) {
+    it('can parse an Xresources file', function(done) {
       expect(config.xresources).to.be.a('array');
       done();
     });
