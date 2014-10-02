@@ -1,6 +1,9 @@
 /* global describe: false, it: false */
-var expect = require('chai').expect,
-    sinon = require('sinon');
+var chai = require('chai'),
+    sinon = require('sinon'),
+    sinonChai = require("sinon-chai"),
+    expect = chai.expect;
+chai.use(sinonChai);
 
 describe("logger", function() {
   
@@ -12,6 +15,33 @@ describe("logger", function() {
     return require('../lib/logger')(mockConsole)
   }
   
+  it('is a function', function() {
+    expect(newLogger()).to.be.a.function;
+  });
+  
+  it('can take method to call as first argument', function() {
+    var logger = newLogger();
+    var spies = {
+      log: sinon.spy(logger, 'log'),
+      warning: sinon.spy(logger, 'warning'),
+      error: sinon.spy(logger, 'error'),
+    };
+    logger('log', 'test');
+    expect(spies.log).to.have.been.calledOnce;
+    logger('warning', 'test');
+    expect(spies.warning).to.have.been.calledOnce;
+    logger('error', 'test');
+    expect(spies.error).to.have.been.calledOnce;
+  });
+  
+  it('logs objects properly', function() {
+    var logger = newLogger(),
+        testObj = { a: 1 };
+    logger.isatty[1] = false; // Required for consistent call parameters
+    logger('log', { a: 1 });
+    expect(logger.console.log)
+      .to.have.been.calledWith('['+logger.prefix+'] ', testObj);
+  });
 
   describe('.log', function() {
     it('is a function', function() {
