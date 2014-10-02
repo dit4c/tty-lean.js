@@ -100,6 +100,7 @@ Typical deployment options:
 ## CLI
 
 - `tty-lean.js --port 3000` - start and bind to port 3000.
+- `tty-lean.js --socket tty-lean.sock` - start and bind to Unix socket.
 - `tty-lean.js --config ~/my-config.json` - specify config file.
 
 ## Contribution and License Agreement
