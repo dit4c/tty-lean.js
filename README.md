@@ -85,7 +85,17 @@ to `xterm-256color` by setting `"termName": "xterm-256color"` in your config.
 
 ## Security
 
-tty-lean.js currently has https as an option as heritage from tty.js. That's likely to change. Reverse proxies work with websockets these days, so there's no real need.
+Unlike [tty.js][tty.js], _tty-lean.js_ doesn't handle authorization internally.
+
+Typical deployment options:
+ * HTTP Basic authentication using a reverse proxy (like Nginx).
+   * Chrome [has issues with Websockets & basic auth][chromium-123862].
+ * Cookie-based auth using a reverse proxy.
+   * Nginx's [ngx_http_auth_request_module][ngx_http_auth_request_module] makes
+     using an external authentication system fairly easy.
+   * OpenResty has [EncryptedSessionNginxModule][EncryptedSessionNginxModule].
+ * Stand-alone using [SSL Client Authentication][ssl-client-auth] via `https`
+   configuration options.
 
 ## CLI
 
@@ -104,3 +114,7 @@ MIT. See COPYING for details.
 
 [tty.js]: https://github.com/chjj/tty.js/
 [1]: http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#Mouse%20Tracking
+[chromium-123862]: https://code.google.com/p/chromium/issues/detail?id=123862
+[ngx_http_auth_request_module]: http://nginx.org/en/docs/http/ngx_http_auth_request_module.html
+[EncryptedSessionNginxModule]: http://openresty.org/#EncryptedSessionNginxModule
+[ssl-client-auth]: http://nategood.com/nodejs-ssl-client-cert-auth-api-rest
