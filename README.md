@@ -30,9 +30,6 @@ Configuration is stored in `~/.tty-lean.js/config.json` or `~/.tty-lean.js` as a
 
 ``` json
 {
-  "users": {
-    "hello": "world"
-  },
   "https": {
     "key": "./server.key",
     "cert": "./server.crt"
@@ -80,8 +77,6 @@ Configuration is stored in `~/.tty-lean.js/config.json` or `~/.tty-lean.js` as a
   }
 }
 ```
-
-Usernames and passwords can be plaintext or sha1 hashes.
 
 ### 256 colors
 
