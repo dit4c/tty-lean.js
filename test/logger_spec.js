@@ -37,7 +37,7 @@ describe("logger", function() {
   it('logs objects properly', function() {
     var logger = newLogger(),
         testObj = { a: 1 };
-    logger.isatty[1] = false; // Required for consistent call parameters
+    logger.isatty.log = false; // Required for consistent call parameters
     logger('log', { a: 1 });
     expect(logger.console.log)
       .to.have.been.calledWith('['+logger.prefix+'] ', testObj);
@@ -65,7 +65,7 @@ describe("logger", function() {
       var logger = newLogger();
       var call;
       // A TTY
-      logger.isatty[1] = true;
+      logger.isatty.log = true;
       logger.log("test");
       call = logger.console.log.lastCall;
       expect(call.args[0])
@@ -77,7 +77,7 @@ describe("logger", function() {
       var logger = newLogger();
       var call;
       // Not a TTY
-      logger.isatty[1] = false;
+      logger.isatty.log = false;
       logger.log("test");
       call = logger.console.log.lastCall;
       expect(call.args[0]).to.equal('['+logger.prefix+'] test');
@@ -107,7 +107,7 @@ describe("logger", function() {
       var logger = newLogger();
       var call;
       // A TTY
-      logger.isatty[2] = true;
+      logger.isatty.error = true;
       logger.warning("test");
       call = logger.console.error.lastCall;
       expect(call.args[0])
@@ -119,7 +119,7 @@ describe("logger", function() {
       var logger = newLogger();
       var call;
       // Not a TTY
-      logger.isatty[2] = false;
+      logger.isatty.error = false;
       logger.warning("test");
       call = logger.console.error.lastCall;
       expect(call.args[0]).to.equal('['+logger.prefix+'] test');
@@ -149,7 +149,7 @@ describe("logger", function() {
       var logger = newLogger();
       var call;
       // A TTY
-      logger.isatty[2] = true;
+      logger.isatty.error = true;
       logger.error("test");
       call = logger.console.error.lastCall;
       expect(call.args[0])
@@ -161,7 +161,7 @@ describe("logger", function() {
       var logger = newLogger();
       var call;
       // Not a TTY
-      logger.isatty[2] = false;
+      logger.isatty.error = false;
       logger.error("test");
       call = logger.console.error.lastCall;
       expect(call.args[0]).to.equal('['+logger.prefix+'] test');
