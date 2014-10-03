@@ -128,16 +128,17 @@ tty.open = function() {
   tty.window = new Window;
 
   tty.socket.on('connect', function() {
-    tty.socket.emit('start', startId(true));
-  });
-  
-  tty.socket.on('conflict', function() {
-    tty.socket.disconnect();
-    console.log("conflict detected, regenerating ID");
-    tty.socket = setupHooks(newSocket());
-    tty.window.socket = tty.socket;
-    tty.socket.on('connect', function() {
-      tty.socket.emit('start', startId(false));
+    tty.socket.emit('start', startId(true), function(outcome) {
+      switch (outcome) {
+        case 'conflict':
+          tty.socket.disconnect();
+          console.log("conflict detected, regenerating ID");
+          tty.socket = setupHooks(newSocket());
+          tty.window.socket = tty.socket;
+          tty.socket.on('connect', function() {
+            tty.socket.emit('start', startId(false));
+          });
+      }
     });
   });
 
