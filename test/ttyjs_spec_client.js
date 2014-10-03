@@ -23,6 +23,9 @@ describe("client", function() {
     app.close();
   });
   
+  
+  // This probably doesn't work because of:
+  // http://stackoverflow.com/questions/25613551/socketio-phantomjs-emit-not-working
   it('serves the HTML UI', function(done) {
     var url = 'http://localhost:'+app.address().port+'/';
     phantom.create(function (ph) {
