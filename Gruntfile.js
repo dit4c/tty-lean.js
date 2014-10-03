@@ -1,52 +1,22 @@
 module.exports = function(grunt) {
 
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-blanket');
+  grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    clean: {
+    mocha_istanbul: {
       coverage: {
-        src: ['coverage/']
-      }
-    },
-    copy: {
-      coverage: {
-        src: ['static/**', 'test/**'],
-        dest: 'coverage/'
-      }
-    },
-    blanket: {
-      server: {
-        src: ['lib/'],
-        dest: 'coverage/lib/'
-      },
-      client: {
-        src: ['static/'],
-        dest: 'coverage/static/'
-      }
-    },
-    mochaTest: {
-      test: {
+        src: 'test',
         options: {
-          reporter: 'spec',
-        },
-        src: ['coverage/test/**/*.js']
-      },
-      lcov: {
-        options: {
-          reporter: 'mocha-lcov-reporter',
-          quiet: true,
-          captureFile: 'coverage/coverage.lcov'
-        },
-        src: ['coverage/test/**/*.js']
+          mask: '*_spec.js',
+          root: 'lib',
+          reportFormats: ['text-summary','lcovonly']
+        }
       }
     }
   });
   
   
-  grunt.registerTask('test', ['clean', 'copy', 'blanket', 'mochaTest']);
+  grunt.registerTask('test', ['mocha_istanbul:coverage']);
 
 };
