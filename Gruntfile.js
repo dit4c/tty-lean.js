@@ -1,5 +1,8 @@
 module.exports = function(grunt) {
 
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-istanbul');
   grunt.loadNpmTasks('grunt-mocha-istanbul');
   grunt.loadNpmTasks('grunt-mocha-test');
 
@@ -15,6 +18,24 @@ module.exports = function(grunt) {
         }
       }
     },
+    clean: {
+      coverage: "coverage/"
+    },
+    copy: {
+      clientStatic: {
+        expand: true,
+        flatten: true,
+        src: ['static/**/*', 'coverage/client/instrument/static/*'],
+        dest: 'coverage/client/static/'
+      }
+    },
+    instrument: {
+      files: 'static/*.js',
+      options: {
+        lazy: true,
+        basePath: 'coverage/client/instrument/'
+      }
+    },
     mochaTest: {
       client: {
         options: {
@@ -27,7 +48,10 @@ module.exports = function(grunt) {
     }
   });
   
-  
-  grunt.registerTask('test', ['mocha_istanbul:server', 'mochaTest:client']);
+  grunt.registerTask('test:server', ['mocha_istanbul:server']);
+  grunt.registerTask('test:client',
+    ['clean', 'instrument', 'copy', 'mochaTest:client']);
+
+  grunt.registerTask('test', ['test:server', 'test:client']);
 
 };

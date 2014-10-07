@@ -2,12 +2,14 @@
 var expect = require('chai').expect,
     server = require('../lib/tty-lean'),
     request = require('supertest'),
+    istanbul = require('istanbul'),
     phantom = require('phantom');
 
 describe("client", function() {
   var config = {
         log: true,
-        shell: "sh"
+        shell: "sh",
+        static: "coverage/client/static"
       },
       testServer = server(config),
       app = testServer.server;
@@ -97,9 +99,19 @@ describe("client", function() {
                 page.get('plainText', function(text) {
                   expect(text).to.match(/\$\s+uname/m);
                   expect(text).to.match(/Linux/m);
-                  page.close();
-                  ph.exit();
-                  done();
+                  page.evaluate(function() {
+                    return window.__coverage__;
+                  }, function(coverage) {
+                    var reporter = new istanbul.Reporter(null, 'coverage/client'),
+                        collector = new istanbul.Collector();
+                    collector.add(coverage);
+                    reporter.add('lcovonly');
+                    reporter.write(collector, true, 
+                      function() { console.log('done'); });
+                    page.close();
+                    ph.exit();
+                    done();
+                  });
                 });
               }, 1000);
             });
