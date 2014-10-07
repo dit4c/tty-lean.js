@@ -8,11 +8,11 @@ describe("tty-lean", function() {
         localOnly: true,
         log: false,
         shell: "sh"
-      },
-      app = server(config).server;
+      };
   
   describe('/', function() {
     it('serves the HTML UI', function(done) {
+      var app = server(config).server;
       request(app)
         .get('/')
         .expect('Content-Type', 'text/html; charset=UTF-8')
@@ -22,6 +22,7 @@ describe("tty-lean", function() {
   
   describe('/favicon.ico', function() {
     it('serves an icon', function(done) {
+      var app = server(config).server;
       request(app)
         .get('/favicon.ico')
         .expect('Content-Type', 'image/x-icon')
@@ -30,10 +31,11 @@ describe("tty-lean", function() {
   });
   
   describe('/socket.io', function() {
-    it('serves Socket.IO websocket endpoint', function(done) {
+    
+    function runSocketTest(app, opts, done) {
       app.listen(0, function() {
         var port = app.address().port,
-            socket = require('socket.io-client')('ws://localhost:'+port),
+            socket = require('socket.io-client')('ws://localhost:'+port, opts),
             ttyText = '';
         var ttyId;
         socket.on('connect', function() {
@@ -61,7 +63,22 @@ describe("tty-lean", function() {
           app.close();
         });
       });
+    }
+    
+    describe('Socket.IO websocket endpoint', function() {
+      it('works when restricted to websockets', function(done) {
+        runSocketTest(server(config).server, {
+          transports: ['websocket']
+        }, done);
+      });
+      
+      it('works when restricted to polling', function(done) {
+        runSocketTest(server(config).server, {
+          transports: ['polling']
+        }, done);
+      });
     });
+    
   });
   
 });
