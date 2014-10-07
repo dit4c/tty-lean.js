@@ -8,3 +8,4 @@ Makefile.gyp
 *.target.gyp.mk
 *.node
 /coverage
+/screenshots

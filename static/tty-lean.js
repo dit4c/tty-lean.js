@@ -105,9 +105,20 @@ tty.open = function() {
   function newSocket() {
     var parts = document.location.pathname.split('/')
       , base = parts.slice(0, parts.length - 1).join('/') + '/'
-      , resource = base + 'socket.io';
+      , resource = base + 'socket.io'
+      , options = {
+        multiplex: false,
+        path: resource
+      };
     
-    return io({ multiplex: false, path: resource });
+    if (!canUseWebSockets()) {
+      // Same mechanism used by node-phantom: http://git.io/ralDAQ
+      options.transports = ['polling'];
+      // PhantomJS chokes without this for some reason
+      options.forceBase64 = true;
+    }
+    
+    return io(options);
   }
   
   tty.socket = setupHooks(newSocket());
@@ -294,9 +305,9 @@ Window.prototype.maximize = function() {
   window.scrollTo(0, 0);
     
   function borderWidth(side) {
-    return Number.parseInt(
-      window.getComputedStyle(term.element, null)
-        .getPropertyValue('border-'+side+'-width'));
+    var style = window.getComputedStyle(term.element, null),
+        propVal = style.getPropertyValue('border-'+side+'-width');
+    return parseInt(propVal);
   }
   
   padding = {
@@ -390,7 +401,7 @@ Window.prototype.previousTab = function() {
 };
 
 Window.prototype.setFontSize = function(size) {
-  size = Math.max(Number.parseInt(size), 4); // Use a lower bound for the size
+  size = Math.max(parseInt(size), 4); // Use a lower bound for the size
   if (isNaN(size)) return;
   this.element.style.fontSize = size + "px";
   if (window.localStorage) {
@@ -399,7 +410,7 @@ Window.prototype.setFontSize = function(size) {
 }
 
 Window.prototype.changeFontSize = function(delta) {
-  var changed = Number.parseInt(this.element.style.fontSize) + delta;
+  var changed = parseInt(this.element.style.fontSize) + delta;
   this.setFontSize(changed);
   this.maximize();
 };
@@ -735,6 +746,16 @@ function sanitize(text) {
   if (!text) return '';
   return (text + '').replace(/[&<>]/g, '')
 }
+
+function canUseWebSockets() {
+  // Check WebSocket object exists, and that it's recent.
+  // http://stackoverflow.com/questions/17849517
+  //
+  // While Socket.IO (or rather Engine.IO underneath) can use older websocket
+  // connections, they don't work through reverse proxies.
+  return typeof(WebSocket) == 'function' && WebSocket.CLOSED === 3;
+}
+
 
 /**
  * Load
