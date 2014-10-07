@@ -14,7 +14,7 @@ describe("client", function() {
   var port;
   
   before(function() {
-    app.listen(50000);
+    app.listen(0);
   })    
   
   after(function(done) {
