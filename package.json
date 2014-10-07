@@ -4,7 +4,7 @@
   "contributors": [
     "Tim Dettrick"
   ],
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./index.js",
   "bin": "./bin/tty-lean.js",
   "scripts": {
@@ -49,6 +49,7 @@
     "grunt-istanbul": "^0.3.0",
     "grunt-mocha-istanbul": "^2.1.0",
     "grunt-mocha-test": "^0.12.1",
+    "grunt-release": "^0.7.0",
     "istanbul": "^0.3.2",
     "lcov-result-merger": "^1.0.0",
     "mocha": "^1.21.4",
