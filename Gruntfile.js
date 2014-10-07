@@ -19,7 +19,8 @@ module.exports = function(grunt) {
       client: {
         options: {
           reporter: 'spec',
-          quiet: false
+          quiet: false,
+          timeout: 10000
         },
         src: ['test/ttyjs_spec_client.js']
       }
