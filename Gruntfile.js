@@ -19,7 +19,8 @@ module.exports = function(grunt) {
       }
     },
     clean: {
-      coverage: "coverage/"
+      coverage: "coverage",
+      clientCoverage: "coverage/client"
     },
     copy: {
       clientStatic: {
@@ -50,8 +51,8 @@ module.exports = function(grunt) {
   
   grunt.registerTask('test:server', ['mocha_istanbul:server']);
   grunt.registerTask('test:client',
-    ['clean', 'instrument', 'copy', 'mochaTest:client']);
+    ['clean:clientCoverage', 'instrument', 'copy', 'mochaTest:client']);
 
-  grunt.registerTask('test', ['test:server', 'test:client']);
+  grunt.registerTask('test', ['clean', 'test:server', 'test:client']);
 
 };

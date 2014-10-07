@@ -4,4 +4,4 @@ node_js:
 before_install:
   - "npm install --global grunt-cli"
 after_success:
-  - "cat coverage/lcov.info coverage/client/lcov.info | node_modules/coveralls/bin/coveralls.js"
+  - "./node_modules/lcov-result-merger/bin/lcov-result-merger.js 'coverage/**/lcov.info' | node_modules/coveralls/bin/coveralls.js"
