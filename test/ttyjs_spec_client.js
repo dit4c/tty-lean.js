@@ -55,7 +55,7 @@ describe("client", function() {
                 waitFor(testFunc).done(d.resolve);
               }
             });
-          }, 100);
+          }, 10);
           
           return d.promise;
         }
@@ -110,7 +110,15 @@ describe("client", function() {
               return;
             })
             // Wait for the command to return
-            .delay(1000)
+            .then(function () {
+              // Check there are two $'s
+              return waitFor(function(cb) {
+                // Look for shell prompt
+                page.get('plainText', function(text) {
+                  cb(text.match(/\$/g).length > 1);
+                });
+              });
+            })
             // Check the command ran as expected
             .then(function() {
               var d = Q.defer();
@@ -158,7 +166,9 @@ describe("client", function() {
           function waitForLoad(callback) {
             waitFor(function(cb) {
               page.evaluate(function() {
-                return window.tty.socket && window.tty.socket.connected;
+                return window.tty &&
+                  window.tty.socket &&
+                  window.tty.socket.connected;
               }, cb);
             }).then(callback);
           }
