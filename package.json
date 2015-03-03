@@ -38,7 +38,7 @@
     "pty.js": "^0.2.4",
     "serve-favicon": "^2.1.5",
     "socket.io": "^1.1.0",
-    "term.js": "0.0.4"
+    "term.js": "git://github.com/macyabbey/term.js#07ced44af3eaf7ff56b3abc6cf1196541c0b8b1d"
   },
   "devDependencies": {
     "chai": "^1.9.2",
