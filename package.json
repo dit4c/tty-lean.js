@@ -4,7 +4,7 @@
   "contributors": [
     "Tim Dettrick"
   ],
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "./index.js",
   "bin": "./bin/tty-lean.js",
   "scripts": {
