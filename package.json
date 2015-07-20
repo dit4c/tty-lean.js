@@ -7,11 +7,15 @@
   "version": "0.1.4",
   "main": "./index.js",
   "bin": "./bin/tty-lean.js",
+  "license": "MIT",
   "scripts": {
     "test": "grunt test"
   },
   "preferGlobal": false,
-  "repository": "git://github.com/dit4c/tty-lean.js.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dit4c/tty-lean.js.git"
+  },
   "homepage": "https://github.com/dit4c/tty-lean.js",
   "bugs": {
     "url": "https://github.com/dit4c/tty-lean.js/issues"
@@ -32,7 +36,7 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "express": "^4.9.5",
+    "express": "~4.12.x",
     "lodash": "^2.4.1",
     "nomnom": "^1.8.0",
     "pty.js": "^0.2.4",
